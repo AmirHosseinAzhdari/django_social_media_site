@@ -1,2 +1,2 @@
 # Django Social Media Sample Site 
-with authenticate and authorization users
+With authenticate and authorize users and add questions and comments for each question
