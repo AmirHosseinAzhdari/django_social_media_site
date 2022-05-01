@@ -22,7 +22,7 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
-
+.idea
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -77,7 +77,7 @@ docs/_build/
 
 # PyBuilder
 target/
-
+*/migrations
 
 ### Django ###
 *.log
@@ -88,3 +88,4 @@ local_settings.py
 
 .env
 db.sqlite3
+
