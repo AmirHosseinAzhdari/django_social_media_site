@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="card text-center" style="margin-left: 25%; width: 50%">
+        <div class="card-header">
+            {{ post.title }}
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">author: {{ post.user.first_name }} {{ post.user.last_name }}</h5>
+            <p class="card-text">{{ post.body }}</p>
+        </div>
+        <div class="card-footer text-muted">
+            changed date: {{ post.updated }} <br> created date: {{ post.created }}
+        </div>
+    </div>
+{% endblock %}

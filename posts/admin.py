@@ -5,8 +5,8 @@ from .models import Post
 # customize admin panel
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('user', 'slug', 'updated', 'created')
-    search_fields = ('slug', 'body')
+    list_display = ('user', 'title', 'updated', 'created')
+    search_fields = ('title', 'body')
     list_filter = ('updated', 'created')
     # complete slug when typing body
     prepopulated_fields = {'slug': ('body',)}

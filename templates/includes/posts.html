@@ -1,0 +1,9 @@
+<div class="col-lg-4 p-2">
+    <div class="card" style="min-height: 168px">
+        <div class="card-body">
+            <h5 class="card-title">{{ post.title }}</h5>
+            <p class="card-text">{{ post.body|truncatewords:8 }}</p>
+            <a href="{% url 'posts:posts_detail' post.id post.slug %}" class="btn btn-primary">Show details</a>
+        </div>
+    </div>
+</div>

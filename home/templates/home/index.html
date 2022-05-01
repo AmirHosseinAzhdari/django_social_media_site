@@ -1,5 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>Index page</h1>
+    <h1 class="text-center">Index page</h1>
+
+
+    <div class="row p-4">
+        {% for post in posts %}
+            {% include 'includes/posts.html' with post=post %}
+        {% endfor %}
+    </div>
+
+
+
 {% endblock %}
