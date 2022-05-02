@@ -7,6 +7,8 @@ from accounts.forms import UserRegistrationForm, UserLoginForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 
+from posts.models import Post
+
 
 class UserRegisterView(View):
     form_class = UserRegistrationForm
@@ -80,4 +82,5 @@ class UserProfileView(LoginRequiredMixin, View):
         except ObjectDoesNotExist:
             messages.warning(request, "User not found", 'warning')
             return redirect("home:home")
-        return render(request, self.template_name, {"user": user})
+        posts = Post.objects.filter(user=user)
+        return render(request, self.template_name, {"user": user, "posts": posts})

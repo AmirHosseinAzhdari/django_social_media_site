@@ -7,11 +7,22 @@
             {{ post.title }}
         </div>
         <div class="card-body">
-            <h5 class="card-title">author: {{ post.user.first_name }} {{ post.user.last_name }}</h5>
+            <h5 class="card-title">author:
+                <a href="{% url 'accounts:user_profile' post.user.id %}">
+                    {{ post.user.first_name }} {{ post.user.last_name }}
+                </a>
+            </h5>
             <p class="card-text">{{ post.body }}</p>
         </div>
         <div class="card-footer text-muted">
-            changed date: {{ post.updated }} <br> created date: {{ post.created }}
+            changed date: {{ post.updated|date:"Y-m-d" }} <br> created date: {{ post.created|date:"Y-m-d" }}
         </div>
     </div>
+
+    {% if post.user.id == request.user.id %}
+        <div class="text-center p-4">
+            <a href="{% url 'posts:post_delete' post.id %}" class="btn btn-danger ">Delete</a>
+            <a href="" class="btn btn-warning ">Edit</a>
+        </div>
+    {% endif %}
 {% endblock %}

@@ -3,4 +3,12 @@
 {% block content %}
     <h2 class="text-center">{{ user.first_name }} {{ user.last_name }}</h2>
     <p class="text-center">{{ user.email }}</p>
+
+    <h4 class="p-3">User posts: </h4>
+    <div class="row p-4">
+        {% for post in posts %}
+            {% include 'includes/posts.html' with post=post %}
+        {% endfor %}
+    </div>
+
 {% endblock %}
