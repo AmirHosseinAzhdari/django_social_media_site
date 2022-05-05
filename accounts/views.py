@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.models import User
 from accounts.forms import UserRegistrationForm, UserLoginForm
@@ -77,10 +77,6 @@ class UserProfileView(LoginRequiredMixin, View):
     template_name = 'accounts/profile.html'
 
     def get(self, request, user_id):
-        try:
-            user = User.objects.get(pk=user_id)
-        except ObjectDoesNotExist:
-            messages.warning(request, "User not found", 'warning')
-            return redirect("home:home")
+        user = get_object_or_404(User, pk=user_id)
         posts = Post.objects.filter(user=user)
         return render(request, self.template_name, {"user": user, "posts": posts})
