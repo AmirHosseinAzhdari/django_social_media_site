@@ -5,6 +5,11 @@
     <p class="text-center">{{ user.email }}</p>
 
     <h4 class="p-3">User posts: </h4>
+
+    {% if user.id == request.user.id %}
+        <a href="{% url 'posts:post_create' %}" class="btn btn-success m-3">Create New Post</a>
+    {% endif %}
+
     <div class="row p-4">
         {% for post in posts %}
             {% include 'includes/posts.html' with post=post %}

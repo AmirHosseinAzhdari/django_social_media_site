@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.text import slugify
-from posts.forms import PostUpdateForm
+from posts.forms import PostCreateAndUpdateForm
 from posts.models import Post
 
 
@@ -11,6 +11,25 @@ class PostDetailView(View):
     def get(self, request, post_id, post_slug):
         post = Post.objects.get(pk=post_id, slug=post_slug)
         return render(request, 'posts/detail.html', {"post": post})
+
+
+class PostCreateView(LoginRequiredMixin, View):
+    form_class = PostCreateAndUpdateForm
+
+    def get(self, request):
+        form = self.form_class
+        return render(request, 'posts/create.html', {"form": form})
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            new_post = form.save(commit=False)
+            new_post.slug = slugify(form.cleaned_data["body"][:50])
+            new_post.user = request.user
+            new_post.save()
+            messages.success(request, 'post created successfully', 'success')
+            return redirect('posts:post_detail', new_post.id, new_post.slug)
+        return render(request, 'posts/update.html', {"form": form})
 
 
 class PostDeleteView(LoginRequiredMixin, View):
@@ -25,7 +44,7 @@ class PostDeleteView(LoginRequiredMixin, View):
 
 
 class PostUpdateView(LoginRequiredMixin, View):
-    form_class = PostUpdateForm
+    form_class = PostCreateAndUpdateForm
 
     def setup(self, request, *args, **kwargs):
         self.post_instance = Post.objects.get(pk=kwargs["post_id"])
@@ -45,10 +64,10 @@ class PostUpdateView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         post = self.post_instance
-        form = PostUpdateForm(request.POST, instance=post)
+        form = self.form_class(request.POST, instance=post)
         if form.is_valid():
             new_post = form.save(commit=False)
-            new_post.slug = slugify(form.cleaned_data['body'])
+            new_post.slug = slugify(form.cleaned_data['body'][:50])
             new_post.save()
             messages.success(request, 'post updated successfully', 'success')
             return redirect('posts:post_detail', post.id, post.slug)
