@@ -12,7 +12,7 @@ class Post(models.Model):
     updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ('-updated',)
+        ordering = ['-updated', '-created']
 
     def __str__(self):
         return f'{self.title} - {self.updated}'
