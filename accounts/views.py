@@ -58,6 +58,10 @@ class UserLoginView(View):
             if user is not None:
                 login(request, user)
                 messages.success(request, 'you logged in successfully', 'success')
+                # get users last requested url
+                next_url = request.GET.get('next')
+                if next_url:
+                    return redirect(next_url)
                 return redirect('home:home')
             messages.error(request, 'invalid username or password', 'warning')
         return render(request, self.template_name, {"form": form})
@@ -115,7 +119,7 @@ class UserFollowView(LoginRequiredMixin, View):
             messages.error(request, 'You are already followed this user', 'danger')
         else:
             Relation(from_user=request.user, to_user=user).save()
-            messages.success(request, 'You followed this user successfully', 'success')
+            messages.success(request, 'You follow this user successfully', 'success')
         return redirect('accounts:user_profile', user.id)
 
 
@@ -125,7 +129,7 @@ class UserUnFollowView(LoginRequiredMixin, View):
         relation = Relation.objects.filter(from_user=request.user, to_user=user)
         if relation.exists():
             relation.delete()
-            messages.success(request, 'You unfollowed this user successfully', 'success')
+            messages.success(request, 'You unfollow this user successfully', 'success')
         else:
             messages.error(request, 'You are already dont followed this user', 'danger')
         return redirect('accounts:user_profile', user.id)
