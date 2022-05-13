@@ -7,6 +7,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
+
+from accounts.models import Relation
 from posts.models import Post
 
 
@@ -77,14 +79,18 @@ class UserProfileView(LoginRequiredMixin, View):
     template_name = 'accounts/profile.html'
 
     def get(self, request, user_id):
+        is_following = False
         user = get_object_or_404(User, pk=user_id)
         posts = Post.objects.filter(user=user)
-        return render(request, self.template_name, {"user": user, "posts": posts})
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
+        if relation.exists():
+            is_following = True
+        return render(request, self.template_name, {"user": user, "posts": posts, 'following': is_following})
 
 
 class UserPasswordResetView(auth_views.PasswordResetView):
     template_name = 'accounts/password_reset_form.html'
-    success_url = reverse_lazy('accounts:password_reset_done')  # because of class variable evaluation we use lazy
+    success_url = reverse_lazy('accounts:reset_password_done')  # because of class variable evaluation we use lazy
     email_template_name = 'accounts/password_reset_email.html'
 
 
@@ -99,3 +105,27 @@ class UserPasswordResetConfirmView(auth_views.PasswordResetConfirmView):
 
 class UserPasswordResetCompleteView(auth_views.PasswordResetCompleteView):
     template_name = 'accounts/password_reset_complete.html'
+
+
+class UserFollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
+        if relation.exists():
+            messages.error(request, 'You are already followed this user', 'danger')
+        else:
+            Relation(from_user=request.user, to_user=user).save()
+            messages.success(request, 'You followed this user successfully', 'success')
+        return redirect('accounts:user_profile', user.id)
+
+
+class UserUnFollowView(LoginRequiredMixin, View):
+    def get(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        relation = Relation.objects.filter(from_user=request.user, to_user=user)
+        if relation.exists():
+            relation.delete()
+            messages.success(request, 'You unfollowed this user successfully', 'success')
+        else:
+            messages.error(request, 'You are already dont followed this user', 'danger')
+        return redirect('accounts:user_profile', user.id)
