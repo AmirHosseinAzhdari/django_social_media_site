@@ -10,7 +10,8 @@ from posts.models import Post
 class PostDetailView(View):
     def get(self, request, post_id, post_slug):
         post = get_object_or_404(Post, pk=post_id, slug=post_slug)
-        return render(request, 'posts/detail.html', {"post": post})
+        comments = post.comments.filter(is_reply=False)
+        return render(request, 'posts/detail.html', {"post": post, "comments": comments})
 
 
 class PostCreateView(LoginRequiredMixin, View):
@@ -27,7 +28,7 @@ class PostCreateView(LoginRequiredMixin, View):
             new_post.slug = slugify(form.cleaned_data["body"][:50])
             new_post.user = request.user
             new_post.save()
-            messages.success(request, 'post created successfully', 'success')
+            messages.success(request, 'posts created successfully', 'success')
             return redirect('posts:post_detail', new_post.id, new_post.slug)
         return render(request, 'posts/update.html', {"form": form})
 
@@ -37,9 +38,9 @@ class PostDeleteView(LoginRequiredMixin, View):
         post = get_object_or_404(Post, pk=post_id)
         if post.user.id == request.user.id:
             post.delete()
-            messages.success(request, 'Your post was deleted successfully', 'success')
+            messages.success(request, 'Your posts was deleted successfully', 'success')
         else:
-            messages.error(request, 'You can not delete a post that does not belong to you', 'danger')
+            messages.error(request, 'You can not delete a posts that does not belong to you', 'danger')
         return redirect('accounts:user_profile', user_id=request.user.id)
 
 
@@ -53,7 +54,7 @@ class PostUpdateView(LoginRequiredMixin, View):
     def dispatch(self, request, *args, **kwargs):
         post = self.post_instance
         if not post.user.id == request.user.id:
-            messages.error(request, 'You can not update a post that does not belong to you', 'danger')
+            messages.error(request, 'You can not update a posts that does not belong to you', 'danger')
             return redirect('accounts:user_profile', user_id=request.user.id)
         return super().dispatch(request, *args, **kwargs)
 
@@ -69,6 +70,6 @@ class PostUpdateView(LoginRequiredMixin, View):
             new_post = form.save(commit=False)
             new_post.slug = slugify(form.cleaned_data['body'][:50])
             new_post.save()
-            messages.success(request, 'post updated successfully', 'success')
+            messages.success(request, 'posts updated successfully', 'success')
             return redirect('posts:post_detail', post.id, post.slug)
         return render(request, 'posts/update.html', {"form": form})

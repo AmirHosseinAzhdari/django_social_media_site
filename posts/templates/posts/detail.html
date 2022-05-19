@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 
+{% block header_references %}
+    <link href="{% static 'posts/comments_card.css' %}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
     <div class="card text-center" style="margin-left: 25%; width: 50%">
@@ -18,6 +22,56 @@
             changed date: {{ post.updated|date:"Y-m-d" }} <br> created date: {{ post.created|date:"Y-m-d" }}
         </div>
     </div>
+
+    <hr>
+
+    <div class="container mb-5 mt-5">
+        <div class="card">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="text-center mb-5">
+                        Post comments
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% for comment in comments %}
+                                <div class="media">
+                                    <div class="media-body">
+                                        <div class="row">
+                                            <div class="col-8 d-flex">
+                                                <h5>{{ comment.user.first_name }} {{ comment.user.last_name }}</h5>
+                                                <span> - {{ comment.created|timesince }}</span>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="pull-right reply">
+                                                    <a href="#"><span><i class="fa fa-reply"></i> reply</span></a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {{ comment.body }}
+                                        {#                                        <div class="media mt-4">#}
+                                        {#                                            <div class="media-body">#}
+                                        {#                                                <div class="row">#}
+                                        {#                                                    <div class="col-12 d-flex">#}
+                                        {#                                                        <h5>Simona Disa</h5>#}
+                                        {#                                                        <span>- 3 hours ago</span>#}
+                                        {#                                                    </div>#}
+                                        {#                                                </div>#}
+                                        {#                                                letters, as opposed to using 'Content here, content here', making it#}
+                                        {#                                                look#}
+                                        {#                                                like readable English.#}
+                                        {#                                            </div>#}
+                                    </div>
+                                </div>
+                                </div>
+                            {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
 
     {% if post.user.id == request.user.id %}
         <div class="text-center p-4">
