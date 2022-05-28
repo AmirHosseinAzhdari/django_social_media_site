@@ -22,9 +22,9 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    reply = models.ForeignKey('Comment', on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ucomments')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='pcomments')
+    reply = models.ForeignKey('self', on_delete=models.CASCADE, related_name='rcomments', blank=True, null=True)
     is_reply = models.BooleanField(default=False)
     body = models.TextField(max_length=400)
     created = models.DateTimeField(auto_now_add=True)

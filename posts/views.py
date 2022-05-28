@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models import Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -10,7 +11,7 @@ from posts.models import Post
 class PostDetailView(View):
     def get(self, request, post_id, post_slug):
         post = get_object_or_404(Post, pk=post_id, slug=post_slug)
-        comments = post.comments.filter(is_reply=False)
+        comments = post.pcomments.filter(is_reply=False)
         return render(request, 'posts/detail.html', {"post": post, "comments": comments})
 
 
