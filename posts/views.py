@@ -1,18 +1,44 @@
 from django.contrib import messages
-from django.db.models import Prefetch
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 from django.utils.text import slugify
-from posts.forms import PostCreateAndUpdateForm
-from posts.models import Post
+from posts.forms import PostCreateAndUpdateForm, CommentCreateForm
+from posts.models import Post, Comment
 
 
 class PostDetailView(View):
-    def get(self, request, post_id, post_slug):
-        post = get_object_or_404(Post, pk=post_id, slug=post_slug)
-        comments = post.pcomments.filter(is_reply=False)
-        return render(request, 'posts/detail.html', {"post": post, "comments": comments})
+    form_class = CommentCreateForm
+
+    def setup(self, request, *args, **kwargs):
+        self.model_instance = get_object_or_404(Post, pk=kwargs['post_id'], slug=kwargs['post_slug'])
+        return super().setup(request, *args, **kwargs)
+
+    def get(self, request, post_id, post_slug, comment_id=None):
+        comments = self.model_instance.pcomments.filter(is_reply=False)
+        reply_comment = get_object_or_404(Comment, pk=comment_id) if comment_id else None
+        return render(request, 'posts/detail.html', {
+            "post": self.model_instance,
+            "comments": comments,
+            'form': self.form_class,
+            "reply": reply_comment
+        })
+
+    @method_decorator(login_required)
+    def post(self, request, post_id, post_slug, comment_id=None):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            if comment_id:
+                new_comment.is_reply = True
+                new_comment.reply = get_object_or_404(Comment, pk=comment_id)
+            new_comment.user = request.user
+            new_comment.post = self.model_instance
+            new_comment.save()
+            messages.success(request, "Comment added successfully", 'success')
+            return redirect('posts:post_detail', self.model_instance.id, self.model_instance.slug)
 
 
 class PostCreateView(LoginRequiredMixin, View):
