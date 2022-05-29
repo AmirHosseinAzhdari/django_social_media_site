@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.utils.text import slugify
 from posts.forms import PostCreateAndUpdateForm, CommentCreateForm
-from posts.models import Post, Comment
+from posts.models import Post, Comment, Vote
 
 
 class PostDetailView(View):
@@ -19,11 +19,15 @@ class PostDetailView(View):
     def get(self, request, post_id, post_slug, comment_id=None):
         comments = self.model_instance.pcomments.filter(is_reply=False)
         reply_comment = get_object_or_404(Comment, pk=comment_id) if comment_id else None
+        user_can_like = False
+        if request.user.is_authenticated and self.model_instance.user_can_like(user=request.user):
+            user_can_like = True
         return render(request, 'posts/detail.html', {
             "post": self.model_instance,
             "comments": comments,
             'form': self.form_class,
-            "reply": reply_comment
+            "reply": reply_comment,
+            "user_can_like": user_can_like
         })
 
     @method_decorator(login_required)
@@ -100,3 +104,15 @@ class PostUpdateView(LoginRequiredMixin, View):
             messages.success(request, 'posts updated successfully', 'success')
             return redirect('posts:post_detail', post.id, post.slug)
         return render(request, 'posts/update.html', {"form": form})
+
+
+class PostLikeView(LoginRequiredMixin, View):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, pk=post_id)
+        liked_post = post.pvote.filter(user=request.user)
+        if liked_post:
+            messages.error(request, "You are already liked this post", "danger")
+        else:
+            Vote.objects.create(post=post, user=request.user)
+            messages.success(request, 'You liked this post successfully', 'success')
+        return redirect("posts:post_detail", post.id, post.slug)

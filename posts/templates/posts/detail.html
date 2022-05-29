@@ -29,7 +29,12 @@
     <a href="{% url 'posts:post_update' post.id %}" class="btn btn-warning">Update</a>
 </div>
 {% endif %}
-
+{% if request.user.is_authenticated %}
+<div class="text-center p-4">
+    <a href="{% url 'posts:post_like' post.id %}" class="btn btn-primary {% if user_can_like %}disabled{% endif %}">Like
+        {{ post.liked_count }}</a>
+</div>
+{% endif %}
 
 <hr>
 
@@ -95,7 +100,7 @@
     <form action="" method="post" class="col-md-10" novalidate>
         {% csrf_token %}
         {{ form.as_p }}
-            <input type="hidden" value="{{ reply.id }}">
+        <input type="hidden" value="{{ reply.id }}">
         <input type="submit" value="Add" class="btn btn-info form-control">
     </form>
     {% else %}
