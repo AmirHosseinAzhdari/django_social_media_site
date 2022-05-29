@@ -1,12 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1 class="text-center">Question Posts</h1>
+<div class="row d-flex justify-content-center">
+    <form action="" method="get" class="col-md-4">
+        {{form.as_p}}
+        <input type="submit" class="btn btn-primary form-control" value="Search">
+    </form>
+</div>
+<br>
+<hr>
+<br>
 
-    <div class="row p-4">
-        {% for post in posts %}
-            {% include 'includes/posts.html' with post=post %}
-        {% endfor %}
-    </div>
+<h1 class="text-center">Question Posts</h1>
+
+<div class="row p-4">
+    {% for post in posts %}
+    {% include 'includes/posts.html' with post=post %}
+    {% endfor %}
+</div>
 
 {% endblock %}
