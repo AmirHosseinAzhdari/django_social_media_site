@@ -2,110 +2,111 @@
 {% load static %}
 
 {% block header_references %}
-<link href="{% static 'posts/comments_card.css' %}" rel="stylesheet">
+    <link href="{% static 'posts/comments_card.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-<div class="card text-center" style="margin-left: 25%; width: 50%">
-    <div class="card-header">
-        {{ post.title }}
+    <div class="card text-center" style="margin-left: 25%; width: 50%">
+        <div class="card-header">
+            {{ post.title }}
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">author:
+                <a href="{% url 'accounts:user_profile' post.user.id %}">
+                    {{ post.user.first_name }} {{ post.user.last_name }}
+                </a>
+            </h5>
+            <p class="card-text">{{ post.body }}</p>
+        </div>
+        <div class="card-footer text-muted">
+            changed date: {{ post.updated|date:"Y-m-d" }} <br> created date: {{ post.created|date:"Y-m-d" }}
+        </div>
     </div>
-    <div class="card-body">
-        <h5 class="card-title">author:
-            <a href="{% url 'accounts:user_profile' post.user.id %}">
-                {{ post.user.first_name }} {{ post.user.last_name }}
-            </a>
-        </h5>
-        <p class="card-text">{{ post.body }}</p>
-    </div>
-    <div class="card-footer text-muted">
-        changed date: {{ post.updated|date:"Y-m-d" }} <br> created date: {{ post.created|date:"Y-m-d" }}
-    </div>
-</div>
 
-{% if post.user.id == request.user.id %}
-<div class="text-center p-4">
-    <a href="{% url 'posts:post_delete' post.id %}" class="btn btn-danger ">Delete</a>
-    <a href="{% url 'posts:post_update' post.id %}" class="btn btn-warning">Update</a>
-</div>
-{% endif %}
-{% if request.user.is_authenticated %}
-<div class="text-center p-4">
-    <a href="{% url 'posts:post_like' post.id %}" class="btn btn-primary {% if user_can_like %}disabled{% endif %}">Like
-        {{ post.liked_count }}</a>
-</div>
-{% endif %}
+    {% if post.user.id == request.user.id %}
+        <div class="text-center p-4">
+            <a href="{% url 'posts:post_delete' post.id %}" class="btn btn-danger ">Delete</a>
+            <a href="{% url 'posts:post_update' post.id %}" class="btn btn-warning">Update</a>
+        </div>
+    {% endif %}
+    {% if request.user.is_authenticated %}
+        <div class="text-center p-4">
+            <a href="{% url 'posts:post_like' post.id %}"
+               class="btn btn-primary {% if user_can_like %}disabled{% endif %}">Like
+                {{ post.liked_count }}</a>
+        </div>
+    {% endif %}
 
-<hr>
+    <hr>
 
 
-<div class="container mb-5 mt-5">
-    <div class="card">
-        <div class="row">
-            <div class="col-md-12">
-                <h3 class="text-center mb-5">
-                    Post comments
-                </h3>
-                <div class="row">
-                    <div class="col-md-12">
-                        {% for comment in comments %}
-                        <div class="media">
-                            <div class="media-body">
-                                <div class="row">
-                                    <div class="col-8 d-flex">
-                                        <h5>{{ comment.user.first_name }} {{ comment.user.last_name }} </h5>
-                                        <span> - {{ comment.created|timesince }}</span>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="pull-right reply">
-                                            <a href="{% url 'posts:post_detail' post.id post.slug comment.id %}"><span><i
-                                                    class="fa fa-reply"></i> reply</span></a>
-                                        </div>
-                                    </div>
-                                </div>
-                                {{ comment.body }}
-                                {% for reply in comment.rcomments.all %}
-                                <div class="media mt-4" style="margin-left: 40px">
+    <div class="container mb-5 mt-5">
+        <div class="card">
+            <div class="row">
+                <div class="col-md-12">
+                    <h3 class="text-center mb-5">
+                        Post comments
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-12">
+                            {% for comment in comments %}
+                                <div class="media">
                                     <div class="media-body">
                                         <div class="row">
-                                            <div class="col-12 d-flex">
-                                                <h5>{{ reply.user.first_name }} {{ reply.user.last_name }} </h5>
-                                                <span> - {{ reply.created|timesince }}</span>
+                                            <div class="col-8 d-flex">
+                                                <h5>{{ comment.user.first_name }} {{ comment.user.last_name }} </h5>
+                                                <span> - {{ comment.created|timesince }}</span>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="pull-right reply">
+                                                    <a href="{% url 'posts:post_detail' post.id post.slug comment.id %}"><span><i
+                                                            class="fa fa-reply"></i> reply</span></a>
+                                                </div>
                                             </div>
                                         </div>
-                                        {{ reply.body }}
+                                        {{ comment.body }}
+                                        {% for reply in comment.rcomments.all %}
+                                            <div class="media mt-4" style="margin-left: 40px">
+                                                <div class="media-body">
+                                                    <div class="row">
+                                                        <div class="col-12 d-flex">
+                                                            <h5>{{ reply.user.first_name }} {{ reply.user.last_name }} </h5>
+                                                            <span> - {{ reply.created|timesince }}</span>
+                                                        </div>
+                                                    </div>
+                                                    {{ reply.body }}
+                                                </div>
+                                            </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
-                                {% endfor %}
-                            </div>
+                                <br>
+                            {% empty %}
+                                <p>No comments yet!</p>
+                            {% endfor %}
                         </div>
-                        <br>
-                        {% empty %}
-                        <p>No comments yet!</p>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="row d-flex justify-content-center">
-    {% if reply %}
-    <h2 class="text-center">Reply comment for {{ reply.user.first_name }} {{ reply.user.last_name }} </h2>
-    {% else %}
-    <h2 class="text-center">Add comment</h2>
-    {% endif %}
-    {% if request.user.is_authenticated %}
-    <form action="" method="post" class="col-md-10" novalidate>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="hidden" value="{{ reply.id }}">
-        <input type="submit" value="Add" class="btn btn-info form-control">
-    </form>
-    {% else %}
-    <p class="col-md-3" style="color: Red">Only logged-in users can add comments</p>
-    {% endif %}
-</div>
+    <div class="row d-flex justify-content-center">
+        {% if reply %}
+            <h2 class="text-center">Reply comment for {{ reply.user.first_name }} {{ reply.user.last_name }} </h2>
+        {% else %}
+            <h2 class="text-center">Add comment</h2>
+        {% endif %}
+        {% if request.user.is_authenticated %}
+            <form action="" method="post" class="col-md-10" novalidate>
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="hidden" value="{{ reply.id }}">
+                <input type="submit" value="Add" class="btn btn-info form-control">
+            </form>
+        {% else %}
+            <p class="col-md-3" style="color: Red">Only logged-in users can add comments</p>
+        {% endif %}
+    </div>
 
 {% endblock %}
