@@ -10,6 +10,7 @@ from django.urls import reverse_lazy
 
 from accounts.models import Relation
 from posts.models import Post
+from .forms import ProfileEditForm
 
 
 class UserRegisterView(View):
@@ -133,3 +134,20 @@ class UserUnFollowView(LoginRequiredMixin, View):
         else:
             messages.error(request, 'You are already dont followed this user', 'danger')
         return redirect('accounts:user_profile', user.id)
+
+
+class EditProfileView(LoginRequiredMixin, View):
+    form_class = ProfileEditForm
+
+    def get(self, request):
+        form = self.form_class(instance=request.user.profile, initial={"email": request.user.email})
+        return render(request, 'accounts/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            request.user.email = form.cleaned_data['email']
+            request.user.save()
+            messages.success(request, "Profile updated successfully", 'success')
+        return redirect('accounts:user_profile', request.user.id)

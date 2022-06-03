@@ -7,6 +7,7 @@
     <div class="text-center">
         {% if user.id == request.user.id %}
             <a href="{% url 'posts:post_create' %}" class="btn btn-success m-3">Create New Post</a>
+            <a href="{% url 'accounts:edit_profile' %}" class="btn btn-primary m-3">Edit Profile</a>
         {% else %}
             {% if not following %}
                 <a href="{% url 'accounts:user_follow' user.id %}" class="btn btn-primary m-3">Follow</a>
