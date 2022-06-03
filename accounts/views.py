@@ -31,7 +31,8 @@ class UserRegisterView(View):
         form = self.form_class(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            User.objects.create_user(cd['username'], cd['email'], cd['password1'])
+            user = User.objects.create_user(cd['username'], cd['email'], cd['password1'])
+            login(request, user)
             messages.success(request, 'you registered successfully', 'success')
             return redirect('home:home')
         return render(request, self.template_name, {"form": form})
@@ -140,7 +141,9 @@ class EditProfileView(LoginRequiredMixin, View):
     form_class = ProfileEditForm
 
     def get(self, request):
-        form = self.form_class(instance=request.user.profile, initial={"email": request.user.email})
+        form = self.form_class(instance=request.user.profile,
+                               initial={"email": request.user.email, "first_name": request.user.first_name,
+                                        "last_name": request.user.last_name})
         return render(request, 'accounts/edit_profile.html', {'form': form})
 
     def post(self, request):
@@ -148,6 +151,8 @@ class EditProfileView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
             request.user.email = form.cleaned_data['email']
+            request.user.first_name = form.cleaned_data['first_name']
+            request.user.last_name = form.cleaned_data['last_name']
             request.user.save()
             messages.success(request, "Profile updated successfully", 'success')
         return redirect('accounts:user_profile', request.user.id)

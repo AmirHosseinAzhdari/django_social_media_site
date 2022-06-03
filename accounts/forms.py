@@ -31,6 +31,8 @@ class UserLoginForm(forms.Form):
 
 
 class ProfileEditForm(forms.ModelForm):
+    first_name = forms.CharField(label="first name", widget=forms.TextInput(attrs={"class": "form-control"}))
+    last_name = forms.CharField(label="last name", widget=forms.TextInput(attrs={"class": "form-control"}))
     email = forms.EmailField(widget=forms.EmailInput(attrs={"class": "form-control"}))
 
     class Meta:
